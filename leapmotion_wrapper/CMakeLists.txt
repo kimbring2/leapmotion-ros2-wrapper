@@ -23,7 +23,6 @@ find_package(rcutils REQUIRED)
 find_package(leapmotion_components REQUIRED)
 find_package(example_interfaces REQUIRED)
 
-
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
@@ -35,12 +34,25 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+set(LIB_LEAP ${CMAKE_CURRENT_SOURCE_DIR}/include/libLeap.so)
+
 add_executable(leapmotion_wrapper src/leapmotion_wrapper.cpp)
 ament_target_dependencies(leapmotion_wrapper
 rclcpp 
 rclcpp_components
 leapmotion_components
 example_interfaces)
+
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+target_link_libraries(leapmotion_wrapper
+  ${LIB_LEAP}
+  ${PROJECT_SOURCE_DIR}/include/Leap.h
+)
 
 install(TARGETS
   leapmotion_wrapper

@@ -18,6 +18,8 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(rcutils REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -30,13 +32,55 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-add_executable(leapmotion_sample ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/src sample.cpp)
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include
+)
+
+set(LEAPMOTION_TOOLS_INC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include/leap_tools.hpp
+)
+
+#set(LEAPMOTION_TOOLS_SRC
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/src/leap_tools.cpp
+#)
+
+set(LEAPMOTION_INC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/leapmotion/include/leapmotion_component.hpp
+)
+
+set(LEAPMOTION_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/leapmotion/src/leapmotion_component.cpp
+)
+
+set(LIB_LEAP ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include/libLeap.so)
+
+add_library(leapmotion_component SHARED
+  ${LEAPMOTION_INC}
+  ${LEAPMOTION_SRC}
+  ${LIB_LEAP}
+)
+
+#add_executable(leap_tools 
+#  ${LIB_LEAP}
+#)
+
+target_link_libraries(leapmotion_component
+  ${LIB_LEAP}
+  ${PROJECT_SOURCE_DIR}/src/tools/include/Leap.h
+)
+
+ament_target_dependencies(leapmotion_component
+    rclcpp 
+    rclcpp_components
+)
+
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include)
 
 # Install components
 install(TARGETS leapmotion_component
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 # Install header files
@@ -45,5 +89,9 @@ install(DIRECTORY
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include/
     DESTINATION include/${PROJECT_NAME}/
 )
+
+ament_export_include_directories(include)
+ament_export_libraries(leapmotion_component)
+ament_export_dependencies(${DEPENDENCIES})
 
 ament_package()
