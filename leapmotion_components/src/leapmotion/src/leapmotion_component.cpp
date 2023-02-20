@@ -1,37 +1,44 @@
-#include <chrono>
-#include <functional>
-#include <memory>
-#include <string>
+#include <sstream>
+#include <type_traits>
+#include <vector>
 
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
+#include "leapmotion_component.hpp"
 
-//using namespace Leap;
-using namespace std::chrono_literals;
+#include <diagnostic_msgs/msg/diagnostic_status.hpp>
+#include <rcl_interfaces/msg/parameter_descriptor.hpp>
+#include <rclcpp/time.hpp>
+#include <rclcpp/utilities.hpp>
+#include <sensor_msgs/distortion_models.hpp>
+#include <sensor_msgs/image_encodings.hpp>
+#include <sensor_msgs/msg/point_field.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 
-/* This example creates a subclass of Node and uses std::bind() to register a
-* member function as a callback from the timer. */
+using namespace Leap;
 
-class MinimalPublisher : public rclcpp::Node
+LeapMotion::LeapMotion(const rclcpp::NodeOptions & options)
+: Node("leapmotion_node", options)
 {
-  public:
-    MinimalPublisher()
-    : Node("minimal_publisher"), count_(0)
-    {
-      publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
-      timer_ = this->create_wall_timer(
-      500ms, std::bind(&MinimalPublisher::timer_callback, this));
-    }
+  RCLCPP_INFO(get_logger(), "********************************");
+  RCLCPP_INFO(get_logger(), "      LeapMotion Component ");
+  RCLCPP_INFO(get_logger(), "********************************");
 
-  private:
-    void timer_callback()
-    {
-      auto message = std_msgs::msg::String();
-      message.data = "Hello, world! " + std::to_string(count_++);
-      RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
-      publisher_->publish(message);
-    }
-    rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
-    size_t count_;
-};
+  // Parameters initialization
+  //initParameters();
+
+  // Init services
+  initServices();
+}
+
+
+LeapMotion::~LeapMotion()
+{
+  RCLCPP_DEBUG(get_logger(), "Destroying node");
+}
+
+
+void LeapMotion::initServices()
+{
+  RCLCPP_INFO(get_logger(), "*** SERVICES ***");
+
+  controller.addListener(listener);
+}

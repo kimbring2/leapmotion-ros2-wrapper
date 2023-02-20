@@ -34,6 +34,7 @@ endif()
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/leapmotion/include
 )
 
 set(LEAPMOTION_TOOLS_INC
