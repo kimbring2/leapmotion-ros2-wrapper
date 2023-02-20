@@ -41,10 +41,6 @@ set(LEAPMOTION_TOOLS_INC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include/leap_tools.hpp
 )
 
-#set(LEAPMOTION_TOOLS_SRC
-#    ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/src/leap_tools.cpp
-#)
-
 set(LEAPMOTION_INC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/leapmotion/include/leapmotion_component.hpp
 )
@@ -60,10 +56,6 @@ add_library(leapmotion_component SHARED
   ${LEAPMOTION_SRC}
   ${LIB_LEAP}
 )
-
-#add_executable(leap_tools 
-#  ${LIB_LEAP}
-#)
 
 target_link_libraries(leapmotion_component
   ${LIB_LEAP}

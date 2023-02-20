@@ -22,11 +22,14 @@ LeapMotion::LeapMotion(const rclcpp::NodeOptions & options)
   RCLCPP_INFO(get_logger(), "      LeapMotion Component ");
   RCLCPP_INFO(get_logger(), "********************************");
 
+  controller.addListener(listener);
   // Parameters initialization
   //initParameters();
 
   // Init services
   initServices();
+  initPublishers();
+  startSensor();
 }
 
 
@@ -39,6 +42,36 @@ LeapMotion::~LeapMotion()
 void LeapMotion::initServices()
 {
   RCLCPP_INFO(get_logger(), "*** SERVICES ***");
+}
 
-  controller.addListener(listener);
+
+void LeapMotion::initPublishers()
+{
+  RCLCPP_INFO(get_logger(), "*** PUBLISHED TOPICS ***");
+
+}
+
+
+bool LeapMotion::startSensor()
+{
+  RCLCPP_INFO(get_logger(), "***** STARTING CAMERA *****");
+
+  //controller.addListener(listener);
+  // Start grab thread
+  mGrabThread = std::thread(&LeapMotion::threadFunc_leapGrab, this);
+
+  if (mGrabThread.joinable()) {
+    mGrabThread.join();
+  }
+}
+
+
+void LeapMotion::threadFunc_leapGrab()
+{
+  RCLCPP_DEBUG(get_logger(), "Grab thread started");
+
+  while (1) {
+    //RCLCPP_INFO(get_logger(), "threadFunc_leapGrab() loop");
+    ;
+  }
 }

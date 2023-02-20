@@ -28,12 +28,17 @@ protected:
   // ----> Initialization functions
   //void initParameters();
   void initServices();
+  void initPublishers();
+  bool startSensor();
+  void threadFunc_leapGrab();
 
   //void getDebugParams();
   //void getGeneralParams();
 private:
   SampleListener listener;
   Controller controller;
+
+  std::thread mGrabThread;
 };
 
 #endif  // LEAPMOTION_COMPONENT_HPP_
