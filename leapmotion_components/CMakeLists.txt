@@ -15,11 +15,47 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+set(DEPENDENCIES
+    rclcpp
+    rclcpp_components
+    image_transport
+    builtin_interfaces
+    std_msgs
+    tf2
+    tf2_ros
+    tf2_geometry_msgs
+    geometry_msgs
+    nav_msgs
+    sensor_msgs
+    stereo_msgs
+    zed_interfaces
+    std_srvs
+    diagnostic_msgs
+    diagnostic_updater
+    visualization_msgs
+    shape_msgs
+)
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rcutils REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(rcutils REQUIRED)
+find_package(builtin_interfaces REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(stereo_msgs REQUIRED)
+find_package(image_transport REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
+find_package(diagnostic_updater REQUIRED)
+find_package(visualization_msgs REQUIRED)
+find_package(shape_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -65,6 +101,7 @@ target_link_libraries(leapmotion_component
 ament_target_dependencies(leapmotion_component
     rclcpp 
     rclcpp_components
+    visualization_msgs
 )
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include)
