@@ -9,6 +9,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include <visualization_msgs/msg/marker.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 
 #include <iostream>
 #include <cstring>
@@ -20,7 +21,10 @@ using namespace std::chrono_literals;
 using namespace Leap;
 
 typedef std::shared_ptr<rclcpp::Publisher<visualization_msgs::msg::Marker>> markerPub;
+typedef std::shared_ptr<rclcpp::Publisher<visualization_msgs::msg::MarkerArray>> markerArrayPub;
+
 typedef std::unique_ptr<visualization_msgs::msg::Marker> markerMsgPtr;
+typedef std::unique_ptr<visualization_msgs::msg::MarkerArray> markerArrayMsgPtr;
 
 class LeapMotion : public rclcpp::Node
 {
@@ -49,6 +53,7 @@ private:
   rclcpp::QoS mMappingQos;
 
   markerPub mPubMarker;
+  markerArrayPub mPubMarkerArray;
 
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;

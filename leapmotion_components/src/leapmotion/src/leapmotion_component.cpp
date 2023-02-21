@@ -20,6 +20,7 @@ using namespace std::this_thread;
 using namespace std::chrono;
 using namespace Leap;
 
+
 LeapMotion::LeapMotion(const rclcpp::NodeOptions & options)
 : Node("leapmotion_node", options),
   mMappingQos(1)
@@ -60,6 +61,10 @@ void LeapMotion::initPublishers()
   mPubMarker = create_publisher<visualization_msgs::msg::Marker>(marker_topic, mMappingQos);
   RCLCPP_INFO_STREAM(get_logger(), "Advertised on topic: " << mPubMarker->get_topic_name());
 
+  std::string marker_array_topic = "plane_marker_array";
+  mPubMarkerArray = create_publisher<visualization_msgs::msg::MarkerArray>(marker_array_topic, mMappingQos);
+  RCLCPP_INFO_STREAM(get_logger(), "Advertised on topic: " << mPubMarkerArray->get_topic_name());
+
   publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
   //timer_ = this->create_wall_timer(500ms, std::bind(&LeapMotion::timer_callback, this));
 }
@@ -69,7 +74,8 @@ bool LeapMotion::startSensor()
 {
   RCLCPP_INFO(get_logger(), "***** STARTING SENSOR *****");
 
-  //controller.addListener(listener);
+  controller.addListener(listener);
+
   // Start grab thread
   mGrabThread = std::thread(&LeapMotion::threadFunc_leapGrab, this);
   mSensThread = std::thread(&LeapMotion::threadFunc_pubSensorsData, this);
@@ -107,66 +113,79 @@ void LeapMotion::threadFunc_pubSensorsData()
   RCLCPP_DEBUG(get_logger(), "Sensors thread started");
 
   while (1) {
-    /*
-    auto message = std_msgs::msg::String();
-    message.data = "Hello, world! " + std::to_string(count_++);
-    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
-    publisher_->publish(message);
-    */
+    markerArrayMsgPtr pt_marker_array = std::make_unique<visualization_msgs::msg::MarkerArray>();
 
-    rclcpp::Time ts = get_clock()->now();
+    for (int i = 0; i < 4; i++) {
+      /*
+      auto message = std_msgs::msg::String();
+      message.data = "Hello, world! " + std::to_string(count_++);
+      RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
+      publisher_->publish(message);
+      */
+      RCLCPP_INFO(this->get_logger(), "Hands: '%d'", listener.hands);
 
-    //RCLCPP_INFO(get_logger(), "threadFunc_leapGrab() loop");
-    markerMsgPtr pt_marker = std::make_unique<visualization_msgs::msg::Marker>();
+      rclcpp::Time ts = get_clock()->now();
 
-    // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-    static int hit_pt_id = 0;
-    pt_marker->header.stamp = ts;
+      //RCLCPP_INFO(get_logger(), "threadFunc_leapGrab() loop");
+      markerMsgPtr pt_marker = std::make_unique<visualization_msgs::msg::Marker>();
 
-    // Set the marker action.  Options are ADD and DELETE
-    pt_marker->action = visualization_msgs::msg::Marker::ADD;
-    pt_marker->lifetime = rclcpp::Duration(0, 0);
+      // Set the frame ID and timestamp.  See the TF tutorials for information on these.
+      static int hit_pt_id = 0;
+      pt_marker->header.stamp = ts;
 
-    // Set the namespace and id for this marker.  This serves to create a unique ID
-    // Any marker sent with the same namespace and id will overwrite the old one
-    pt_marker->ns = "plane_hit_points";
-    pt_marker->id = hit_pt_id++;
-    std::string mMapFrameId = "map";
-    pt_marker->header.frame_id = mMapFrameId;
+      // Set the marker action.  Options are ADD and DELETE
+      pt_marker->action = visualization_msgs::msg::Marker::ADD;
+      pt_marker->lifetime = rclcpp::Duration(0, 0);
 
-    // Set the marker type.
-    pt_marker->type = visualization_msgs::msg::Marker::SPHERE;
+      // Set the namespace and id for this marker.  This serves to create a unique ID
+      // Any marker sent with the same namespace and id will overwrite the old one
+      pt_marker->ns = "plane_hit_points";
+      pt_marker->id = hit_pt_id++;
+      std::string mMapFrameId = "map";
+      pt_marker->header.frame_id = mMapFrameId;
 
-    // Set the pose of the marker.
-    // This is a full 6DOF pose relative to the frame/time specified in the header
-    float X = 0.1;
-    float Y = 0.2;
-    float Z = 0.3;
+      // Set the marker type.
+      pt_marker->type = visualization_msgs::msg::Marker::SPHERE;
 
-    pt_marker->pose.position.x = X;
-    pt_marker->pose.position.y = Y;
-    pt_marker->pose.position.z = Z;
-    pt_marker->pose.orientation.x = 0.0;
-    pt_marker->pose.orientation.y = 0.0;
-    pt_marker->pose.orientation.z = 0.0;
-    pt_marker->pose.orientation.w = 1.0;
+      // Set the pose of the marker.
+      // This is a full 6DOF pose relative to the frame/time specified in the header
+      float X = 0.1;
+      float Y = 0.2;
+      float Z = 0.3;
 
-    // Set the scale of the marker -- 1x1x1 here means 1m on a side
-    pt_marker->scale.x = 0.025;
-    pt_marker->scale.y = 0.025;
-    pt_marker->scale.z = 0.025;
+      pt_marker->pose.position.x = X;
+      pt_marker->pose.position.y = Y;
+      pt_marker->pose.position.z = Z;
+      pt_marker->pose.orientation.x = 0.0;
+      pt_marker->pose.orientation.y = 0.0;
+      pt_marker->pose.orientation.z = 0.0;
+      pt_marker->pose.orientation.w = 1.0;
 
-    // Set the color -- be sure to set alpha to something non-zero!
-    pt_marker->color.r = 0.2f;
-    pt_marker->color.g = 0.1f;
-    pt_marker->color.b = 0.75f;
-    pt_marker->color.a = 0.8;
+      // Set the scale of the marker -- 1x1x1 here means 1m on a side
+      pt_marker->scale.x = 0.025;
+      pt_marker->scale.y = 0.025;
+      pt_marker->scale.z = 0.025;
 
-    // Publish the marker
-    //RCLCPP_DEBUG_STREAM(get_logger(), "Publishing PT MARKER message");
-    RCLCPP_INFO(this->get_logger(), "Publishing PT MARKER message");
-    mPubMarker->publish(std::move(pt_marker));
+      // Set the color -- be sure to set alpha to something non-zero!
+      pt_marker->color.r = 0.2f;
+      pt_marker->color.g = 0.1f;
+      pt_marker->color.b = 0.75f;
+      pt_marker->color.a = 0.8;
 
-    sleep_for(nanoseconds(1000));
+      // Publish the marker
+      //RCLCPP_DEBUG_STREAM(get_logger(), "Publishing PT MARKER message");
+      //RCLCPP_INFO(this->get_logger(), "Publishing PT MARKER message");
+      visualization_msgs::msg::Marker marker;
+      marker.ns = "test";
+      marker.id = i;
+      marker.action = visualization_msgs::msg::Marker::ADD;
+      //mPubMarker->publish(std::move(marker));
+
+      pt_marker_array->markers.push_back(marker);
+
+      sleep_for(nanoseconds(1000));
+    }
+
+    mPubMarkerArray->publish(std::move(pt_marker_array));
   }
 }
