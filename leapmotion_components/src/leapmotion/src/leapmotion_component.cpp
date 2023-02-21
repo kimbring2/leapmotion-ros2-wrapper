@@ -23,7 +23,7 @@ using namespace Leap;
 
 LeapMotion::LeapMotion(const rclcpp::NodeOptions & options)
 : Node("leapmotion_node", options),
-  mMappingQos(1)
+  mMappingQos(0)
 {
   RCLCPP_INFO(get_logger(), "********************************");
   RCLCPP_INFO(get_logger(), "      LeapMotion Component ");
@@ -117,6 +117,7 @@ void LeapMotion::threadFunc_pubSensorsData()
   RCLCPP_DEBUG(get_logger(), "Sensors thread started");
 
   while (1) {
+    int marker_id = 0;
     int hand_number = listener.hands_vector.size();
 
     if (hand_number == 2) {
@@ -125,7 +126,8 @@ void LeapMotion::threadFunc_pubSensorsData()
       
       for (int i = 0; i < listener.hands_vector.size(); i++) {
         visualization_msgs::msg::Marker joint_marker;
-        joint_marker.id = 0;
+        std::string mMapFrameId = "base_link";
+        joint_marker.header.frame_id = mMapFrameId;
 
         int finger_number = listener.hands_vector[i].fingers.size();
 
@@ -152,11 +154,28 @@ void LeapMotion::threadFunc_pubSensorsData()
             point.z = listener.hands_vector[i].fingers[j].bones[k].next_joint_z;
             joint_marker.points.push_back(point);
 
+            std::ostringstream ns;
+            ns << "plane_hit_points" << marker_id;
+            std::string str = ns.str();
+
+            joint_marker.ns = str;
+            joint_marker.id = marker_id++;
+            joint_marker.scale.x = 0.25;
+            joint_marker.scale.y = 0.25;
+            joint_marker.scale.z = 0.25;
+
+            // Set the color -- be sure to set alpha to something non-zero!
+            joint_marker.color.r = 0.2f;
+            joint_marker.color.g = 0.1f;
+            joint_marker.color.b = 0.75f;
+            joint_marker.color.a = 0.8;
+            
             hand_marker_array->markers.push_back(joint_marker);
-            joint_marker.id++;
           }
         }
       }
+
+      marker_id = 0;
 
       mPubMarkerArray->publish(std::move(hand_marker_array));
       RCLCPP_INFO(this->get_logger(), "\n");
@@ -165,62 +184,61 @@ void LeapMotion::threadFunc_pubSensorsData()
     sleep_for(nanoseconds(1000000));
 
     /*
-    for (int i = 0; i < listener.hands_count + 1; i++) {
-      rclcpp::Time ts = get_clock()->now();
+    rclcpp::Time ts = get_clock()->now();
 
-      //RCLCPP_INFO(get_logger(), "threadFunc_leapGrab() loop");
-      visualization_msgs::msg::Marker pt_marker;
+    //RCLCPP_INFO(get_logger(), "threadFunc_leapGrab() loop");
+    visualization_msgs::msg::Marker pt_marker;
 
-      // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-      static int hit_pt_id = 0;
-      pt_marker.header.stamp = ts;
+    // Set the frame ID and timestamp.  See the TF tutorials for information on these.
+    static int hit_pt_id = 0;
+    pt_marker.header.stamp = ts;
 
-      // Set the marker action.  Options are ADD and DELETE
-      pt_marker.action = visualization_msgs::msg::Marker::ADD;
-      pt_marker.lifetime = rclcpp::Duration(0, 0);
+    // Set the marker action.  Options are ADD and DELETE
+    pt_marker.action = visualization_msgs::msg::Marker::ADD;
+    pt_marker.lifetime = rclcpp::Duration(0, 0);
 
-      // Set the namespace and id for this marker.  This serves to create a unique ID
-      // Any marker sent with the same namespace and id will overwrite the old one
-      pt_marker.ns = "plane_hit_points";
-      pt_marker.id = hit_pt_id++;
-      std::string mMapFrameId = "map";
-      pt_marker.header.frame_id = mMapFrameId;
+    // Set the namespace and id for this marker.  This serves to create a unique ID
+    // Any marker sent with the same namespace and id will overwrite the old one
+    pt_marker.ns = "plane_hit_points";
+    pt_marker.id = hit_pt_id++;
+    std::string mMapFrameId = "base_link";
+    pt_marker.header.frame_id = mMapFrameId;
 
-      // Set the marker type.
-      pt_marker.type = visualization_msgs::msg::Marker::SPHERE;
+    // Set the marker type.
+    pt_marker.type = visualization_msgs::msg::Marker::SPHERE;
 
-      // Set the pose of the marker.
-      // This is a full 6DOF pose relative to the frame/time specified in the header
-      float X = 0.1;
-      float Y = 0.2;
-      float Z = 0.3;
+    // Set the pose of the marker.
+    // This is a full 6DOF pose relative to the frame/time specified in the header
+    float X = 0.1;
+    float Y = 0.1;
+    float Z = 0.1;
 
-      pt_marker.pose.position.x = X;
-      pt_marker.pose.position.y = Y;
-      pt_marker.pose.position.z = Z;
-      pt_marker.pose.orientation.x = 0.0;
-      pt_marker.pose.orientation.y = 0.0;
-      pt_marker.pose.orientation.z = 0.0;
-      pt_marker.pose.orientation.w = 1.0;
+    pt_marker.pose.position.x = X;
+    pt_marker.pose.position.y = Y;
+    pt_marker.pose.position.z = Z;
+    pt_marker.pose.orientation.x = 0.0;
+    pt_marker.pose.orientation.y = 0.0;
+    pt_marker.pose.orientation.z = 0.0;
+    pt_marker.pose.orientation.w = 1.0;
 
-      // Set the scale of the marker -- 1x1x1 here means 1m on a side
-      pt_marker.scale.x = 0.025;
-      pt_marker.scale.y = 0.025;
-      pt_marker.scale.z = 0.025;
+    // Set the scale of the marker -- 1x1x1 here means 1m on a side
+    pt_marker.scale.x = 0.25;
+    pt_marker.scale.y = 0.25;
+    pt_marker.scale.z = 0.25;
 
-      // Set the color -- be sure to set alpha to something non-zero!
-      pt_marker.color.r = 0.2f;
-      pt_marker.color.g = 0.1f;
-      pt_marker.color.b = 0.75f;
-      pt_marker.color.a = 0.8;
+    // Set the color -- be sure to set alpha to something non-zero!
+    pt_marker.color.r = 0.2f;
+    pt_marker.color.g = 0.1f;
+    pt_marker.color.b = 0.75f;
+    pt_marker.color.a = 0.8;
 
-      pt_marker_array->markers.push_back(pt_marker);
+    sleep_for(nanoseconds(1000000));
 
-      sleep_for(nanoseconds(1000));
-    }
+    // Publish the marker
+    RCLCPP_INFO(this->get_logger(), "publish marker");
+    mPubMarker->publish(std::move(pt_marker));
+
+    test_x += 0.001;
     */
-
-    // Publish the marker array
-    //mPubMarkerArray->publish(std::move(pt_marker_array));
   }
 }
