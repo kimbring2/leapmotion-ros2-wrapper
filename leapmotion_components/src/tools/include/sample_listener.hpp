@@ -1,8 +1,40 @@
 #include <iostream>
 #include <cstring>
+#include <vector> 
 #include "Leap.h"
 
 using namespace Leap;
+
+
+class BoneClass {
+  public:
+    std::string type;
+
+    float prev_joint_x;
+    float prev_joint_y;
+    float prev_joint_z;
+
+    float next_joint_x;
+    float next_joint_y;
+    float next_joint_z;
+};
+
+
+class FingerClass {
+  public:
+    int id;
+
+    std::vector<BoneClass> bones;
+};
+
+
+class HandClass {
+  public:
+    int id;
+
+    std::vector<FingerClass> fingers;
+};
+
 
 class SampleListener : public Listener {
   public:
@@ -17,7 +49,8 @@ class SampleListener : public Listener {
     virtual void onServiceConnect(const Controller&);
     virtual void onServiceDisconnect(const Controller&);
 
-    int hands;
+    int hands_count;
+    std::vector<HandClass> hands_vector;
 
   private:
 };
@@ -57,7 +90,61 @@ void SampleListener::onFrame(const Controller& controller) {
   // Get the most recent frame and report some basic information
   const Frame frame = controller.frame();
 
-  hands = frame.hands().count();
+  hands_count = frame.hands().count();
+
+  HandList hands = frame.hands();
+
+  hands_vector.clear();
+
+  int hand_id = 0;
+  for (HandList::const_iterator hl = hands.begin(); hl != hands.end(); ++hl) {
+    const Hand hand = *hl;
+    const FingerList fingers = hand.fingers();
+
+    HandClass hand_class;
+
+    int finger_id = 0;
+    for (FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); ++fl) {
+      const Finger finger = *fl;
+
+      FingerClass finger_class;
+
+      // Get finger bones
+      for (int b = 0; b < 4; ++b) {
+        Bone::Type boneType = static_cast<Bone::Type>(b);
+        Bone bone = finger.bone(boneType);
+
+        float prev_joint_x = -bone.prevJoint().x / 1000;
+        float prev_joint_y =  bone.prevJoint().z / 1000;
+        float prev_joint_z =  bone.prevJoint().y / 1000;
+
+        float next_joint_x = -bone.nextJoint().x / 1000;
+        float next_joint_y =  bone.nextJoint().z / 1000;
+        float next_joint_z =  bone.nextJoint().y / 1000;
+
+        BoneClass bone_class;
+        bone_class.type = boneType;
+
+        bone_class.prev_joint_x = prev_joint_x;
+        bone_class.prev_joint_y = prev_joint_y;
+        bone_class.prev_joint_z = prev_joint_z;
+
+        bone_class.next_joint_x = next_joint_x;
+        bone_class.next_joint_y = next_joint_y;
+        bone_class.next_joint_z = next_joint_z;
+
+        finger_class.bones.push_back(bone_class);
+      }
+
+      finger_class.id = finger_id;
+      hand_class.fingers.push_back(finger_class);
+      finger_id++;
+    }
+
+    hand_class.id = hand_id;
+    hands_vector.push_back(hand_class);
+    hand_id++;
+  }
   /*
   std::cout << "Frame id: " << frame.id()
             << ", timestamp: " << frame.timestamp()

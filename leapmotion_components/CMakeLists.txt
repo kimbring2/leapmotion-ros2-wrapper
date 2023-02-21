@@ -101,6 +101,7 @@ target_link_libraries(leapmotion_component
 ament_target_dependencies(leapmotion_component
     rclcpp 
     rclcpp_components
+    geometry_msgs
     visualization_msgs
 )
 
