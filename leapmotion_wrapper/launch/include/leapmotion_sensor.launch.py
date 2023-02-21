@@ -48,45 +48,45 @@ def launch_setup(context, *args, **kwargs):
     # Launch configuration variables
     svo_path = LaunchConfiguration('svo_path')
 
-    camera_name = LaunchConfiguration('camera_name')
-    camera_model = LaunchConfiguration('camera_model')
+    sensor_name = LaunchConfiguration('sensor_name')
+    sensor_model = LaunchConfiguration('sensor_model')
 
     node_name = LaunchConfiguration('node_name')
 
     config_common_path = LaunchConfiguration('config_path')
 
-    zed_id = LaunchConfiguration('leapmotion_id')
+    leapmotion_id = LaunchConfiguration('leapmotion_id')
     serial_number = LaunchConfiguration('serial_number')
 
     base_frame = LaunchConfiguration('base_frame')
-    cam_pose = LaunchConfiguration('cam_pose')
+    sen_pose = LaunchConfiguration('sen_pose')
 
     publish_urdf = LaunchConfiguration('publish_urdf')
     publish_tf = LaunchConfiguration('publish_tf')
     publish_map_tf = LaunchConfiguration('publish_map_tf')
     xacro_path = LaunchConfiguration('xacro_path')
 
-    camera_name_val = camera_name.perform(context)
-    camera_model_val = camera_model.perform(context)
+    sensor_name_val = sensor_name.perform(context)
+    sensor_model_val = sensor_model.perform(context)
 
-    if (camera_name_val == ""):
-        camera_name_val = camera_model_val
+    if (sensor_name_val == ""):
+        sensor_name_val = sensor_model_val
 
-    config_camera_path = os.path.join(
+    config_sensor_path = os.path.join(
         get_package_share_directory('leapmotion_wrapper'),
         'config',
-        camera_model_val + '.yaml'
+        sensor_model_val + '.yaml'
     )
 
-    # Convert 'cam_pose' parameter
-    cam_pose_str = cam_pose.perform(context)
-    cam_pose_array = parse_array_param(cam_pose_str)
+    # Convert 'sen_pose' parameter
+    sen_pose_str = sen_pose.perform(context)
+    sen_pose_array = parse_array_param(sen_pose_str)
 
     # Robot State Publisher node
     rsp_node = Node(
         condition=IfCondition(publish_urdf),
         package='robot_state_publisher',
-        namespace=camera_name_val,
+        namespace=sensor_name_val,
         executable='robot_state_publisher',
         name='leapmotion_state_publisher',
         output='screen',
@@ -94,23 +94,23 @@ def launch_setup(context, *args, **kwargs):
             'robot_description': Command(
                 [
                     'xacro', ' ', xacro_path, ' ',
-                    'camera_name:=', camera_name_val, ' ',
-                    'camera_model:=', camera_model_val, ' ',
+                    'camera_name:=', sensor_name_val, ' ',
+                    'camera_model:=', sensor_model_val, ' ',
                     'base_frame:=', base_frame, ' ',
-                    'cam_pos_x:=', cam_pose_array[0], ' ',
-                    'cam_pos_y:=', cam_pose_array[1], ' ',
-                    'cam_pos_z:=', cam_pose_array[2], ' ',
-                    'cam_roll:=', cam_pose_array[3], ' ',
-                    'cam_pitch:=', cam_pose_array[4], ' ',
-                    'cam_yaw:=', cam_pose_array[5]
+                    'sen_pos_x:=', sen_pose_array[0], ' ',
+                    'sen_pos_y:=', sen_pose_array[1], ' ',
+                    'sen_pos_z:=', sen_pose_array[2], ' ',
+                    'sen_roll:=', sen_pose_array[3], ' ',
+                    'sen_pitch:=', sen_pose_array[4], ' ',
+                    'sen_yaw:=', sen_pose_array[5]
                 ])
         }]
     )
 
-    # ZED Wrapper node
-    zed_wrapper_node = Node(
+    # LeapMotion Wrapper node
+    leapmotion_wrapper_node = Node(
         package='leapmotion_wrapper',
-        namespace=camera_name_val,
+        namespace=sensor_name_val,
         executable='leapmotion_wrapper',
         name=node_name,
         output='screen',
@@ -119,14 +119,14 @@ def launch_setup(context, *args, **kwargs):
         parameters=[
             # YAML files
             config_common_path,  # Common parameters
-            config_camera_path,  # Camera related parameters
+            config_sensor_path,  # Camera related parameters
             # Overriding
             {
-                'general.camera_name': camera_name_val,
-                'general.camera_model': camera_model_val,
+                'general.sensor_name': sensor_name_val,
+                'general.sensor_model': sensor_model_val,
                 'general.svo_file': svo_path,
                 'pos_tracking.base_frame': base_frame,
-                'general.leapmotion_id': zed_id,
+                'general.leapmotion_id': leapmotion_id,
                 'general.serial_number': serial_number,
                 'pos_tracking.publish_tf': publish_tf,
                 'pos_tracking.publish_map_tf': publish_map_tf,
@@ -146,12 +146,12 @@ def generate_launch_description():
         [
             SetEnvironmentVariable(name='RCUTILS_COLORIZED_OUTPUT', value='1'),
             DeclareLaunchArgument(
-                'camera_name',
+                'sensor_name',
                 default_value=TextSubstitution(text=""),
                 description='The name of the camera. It can be different from the camera model and it will be used as node `namespace`. Leave empty to use the camera model as camera name.'),
             DeclareLaunchArgument(
-                'camera_model',
-                description='The model of the camera. Using a wrong camera model can disable camera features. Valid models: `zed`, `zedm`, `zed2`, `zed2i`.'),
+                'sensor_model',
+                description='The model of the camera. Using a wrong camera model can disable camera features. Valid models: `leapmotion`.'),
             DeclareLaunchArgument(
                 'node_name',
                 default_value='zed_node',
@@ -161,7 +161,7 @@ def generate_launch_description():
                 default_value=TextSubstitution(text=default_config_common),
                 description='Path to the YAML configuration file for the camera.'),
             DeclareLaunchArgument(
-                'zed_id',
+                'leapmotion_id',
                 default_value='0',
                 description='The index of the camera to be opened. To be used in multi-camera rigs.'),
             DeclareLaunchArgument(
@@ -193,7 +193,7 @@ def generate_launch_description():
                 default_value='base_link',
                 description='Name of the base link.'),
             DeclareLaunchArgument(
-                'cam_pose',
+                'sen_pose',
                 default_value='[0.0,0.0,0.0,0.0,0.0,0.0]',
                 description='Pose of the camera with respect to the base frame (i.e. `base_link`): [x,y,z,r,p,y]. Note: Orientation in rad.)'),
             OpaqueFunction(function=launch_setup)

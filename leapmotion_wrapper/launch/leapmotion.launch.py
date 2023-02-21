@@ -7,6 +7,8 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
+    print("generate_launch_description()")
+
     # Camera model (force value)
     sensor_model = 'leapmotion'
 

@@ -34,6 +34,9 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+file(GLOB_RECURSE all_files ${CMAKE_SOURCE_DIR}/*)
+add_custom_target(all_${PROJECT_NAME}_files SOURCES ${all_files})
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
@@ -41,11 +44,18 @@ include_directories(
 set(LIB_LEAP ${CMAKE_CURRENT_SOURCE_DIR}/include/libLeap.so)
 
 add_executable(leapmotion_wrapper src/leapmotion_wrapper.cpp)
+
 ament_target_dependencies(leapmotion_wrapper
 rclcpp 
 rclcpp_components
 leapmotion_components
 example_interfaces)
+
+install(TARGETS leapmotion_wrapper
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -54,8 +64,29 @@ target_link_libraries(leapmotion_wrapper
   ${PROJECT_SOURCE_DIR}/include/Leap.h
 )
 
-install(TARGETS
-  leapmotion_wrapper
-  DESTINATION lib/${PROJECT_NAME})
+#install(TARGETS
+#  leapmotion_wrapper
+#  DESTINATION lib/${PROJECT_NAME})
+
+
+# Install PARAMS files
+install(DIRECTORY
+  config
+  DESTINATION share/${PROJECT_NAME}
+)
+
+
+# Install URDF files
+install(DIRECTORY
+  urdf
+  DESTINATION share/${PROJECT_NAME}
+)
+
+
+# Install LAUNCH files
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}
+)
 
 ament_package()

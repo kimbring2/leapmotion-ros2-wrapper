@@ -28,9 +28,9 @@
   <xacro:arg name="cam_yaw"       default="0.0" />
 
   <xacro:include filename="$(find leapmotion_wrapper)/urdf/leapmotion_macro.urdf.xacro" />
-  <xacro:zed_camera name="$(arg camera_name)" model="$(arg camera_model)" parent="$(arg base_frame)">
+  <xacro:leapmotion name="$(arg sensor_name)" model="$(arg sensor_model)" parent="$(arg base_frame)">
     <origin xyz="$(arg cam_pos_x) $(arg cam_pos_y) $(arg cam_pos_z)" rpy="$(arg cam_roll) $(arg cam_pitch) $(arg cam_yaw)" />
-  </xacro:zed_camera>
+  </xacro:leapmotion>
 
   <link name="$(arg base_frame)" />
 </robot>
