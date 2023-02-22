@@ -7,7 +7,8 @@ This ROS2 package can be used with [leapmotion_display_rviz2](https://github.com
 <img src="images/leapmotion_rviz.gif" width="1000">
 
 # Known issues
-This package is not official and developed by myself alone. Even if I borrow the really good ROS2 format from [zed-ros2-wrapper](https://github.com/stereolabs/zed-ros2-wrapper) package, there are still lots of parts those should be fixed. The pull request is always welcome (:
+- This package only works for the two hand tracking. One hand case is ignored.
+- This package is not official and developed by myself alone. Even if I borrow the really good ROS2 format from [zed-ros2-wrapper](https://github.com/stereolabs/zed-ros2-wrapper) package, there are still lots of parts those should be fixed. The pull request is always welcome (:
 
 # Requirements
 - Ubuntu 20.04
