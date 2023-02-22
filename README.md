@@ -39,4 +39,6 @@ After starting node, you should see the below topic list.
 $ ros2 topic list
 ```
 
-<img src="images/leapmotion_topic.png" width="1000">
+The '/leapmotion/plane_marker_array' can be seen in RViz.
+
+<img src="images/leapmotion_topic.png" width="500">
