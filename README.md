@@ -32,3 +32,11 @@ $ sudo apt-get install python-rosdep python-rosinstall-generator python-vcstool 
 ```
 $ ros2 launch leapmotion_wrapper leapmotion.launch.py
 ```
+
+After starting node, you should see the below topic list.
+
+```
+$ ros2 topic list
+```
+
+<img src="images/leapmotion_topic.png" width="1000">
