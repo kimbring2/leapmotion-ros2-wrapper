@@ -15,6 +15,7 @@
 
 #include <chrono>
 #include <thread>
+#include <random>
 
 using namespace std::this_thread;
 using namespace std::chrono;
@@ -116,12 +117,16 @@ void LeapMotion::threadFunc_pubSensorsData()
   // RCLCPP_DEBUG_ONCE(get_logger(), "Sensors callback called");
   RCLCPP_DEBUG(get_logger(), "Sensors thread started");
 
+  std::random_device rd;
+  std::mt19937 e2(rd());
+  std::uniform_real_distribution<> dist(0, 10);
+
   while (1) {
     int marker_id = 0;
     int hand_number = listener.hands_vector.size();
 
     if (hand_number == 2) {
-      RCLCPP_INFO(this->get_logger(), "hand_number: '%d'", hand_number);
+      //RCLCPP_INFO(this->get_logger(), "hand_number: '%d'", hand_number);
       markerArrayMsgPtr hand_marker_array = std::make_unique<visualization_msgs::msg::MarkerArray>();
       
       for (int i = 0; i < listener.hands_vector.size(); i++) {
@@ -131,22 +136,32 @@ void LeapMotion::threadFunc_pubSensorsData()
 
         int finger_number = listener.hands_vector[i].fingers.size();
 
-        RCLCPP_INFO(this->get_logger(), "listener.hands_vector['%d'].id: '%d'", i, listener.hands_vector[i].id);
-        RCLCPP_INFO(this->get_logger(), "finger_number: '%d'", finger_number);
+        //RCLCPP_INFO(this->get_logger(), "listener.hands_vector['%d'].id: '%d'", i, listener.hands_vector[i].id);
+        //RCLCPP_INFO(this->get_logger(), "finger_number: '%d'", finger_number);
         for (int j = 0; j < finger_number; j++) {
-          RCLCPP_INFO(this->get_logger(), "listener.hands_vector['%d'].fingers['%d'].id: '%d'", 
-                                          i, j, listener.hands_vector[i].fingers[j].id);
+          //RCLCPP_INFO(this->get_logger(), "listener.hands_vector['%d'].fingers['%d'].id: '%d'", 
+          //                                i, j, listener.hands_vector[i].fingers[j].id);
           
           int bone_number = listener.hands_vector[i].fingers[j].bones.size();
-          RCLCPP_INFO(this->get_logger(), "bone_number: '%d'", bone_number);
+          //RCLCPP_INFO(this->get_logger(), "bone_number: '%d'", bone_number);
           
           for (int k = 0; k < 4; k++) {
-            RCLCPP_INFO(this->get_logger(), "k: '%d'", k);
+            //RCLCPP_INFO(this->get_logger(), "k: '%d'", k);
             
             geometry_msgs::msg::Point point;
+
             point.x = listener.hands_vector[i].fingers[j].bones[k].prev_joint_x;
+            //point.x = std::floor(dist(e2));
+            //RCLCPP_INFO(this->get_logger(), "point.x: '%f'", point.x);
+
             point.y = listener.hands_vector[i].fingers[j].bones[k].prev_joint_y;
+            //point.y = std::floor(dist(e2));
+            //RCLCPP_INFO(this->get_logger(), "point.y: '%f'", point.y);
+
             point.z = listener.hands_vector[i].fingers[j].bones[k].prev_joint_z;
+            //point.z = std::floor(dist(e2));
+            //RCLCPP_INFO(this->get_logger(), "point.z: '%f'", point.z);
+
             joint_marker.points.push_back(point);
 
             point.x = listener.hands_vector[i].fingers[j].bones[k].next_joint_x;
@@ -160,19 +175,22 @@ void LeapMotion::threadFunc_pubSensorsData()
 
             joint_marker.ns = str;
             joint_marker.id = marker_id++;
-            joint_marker.scale.x = 0.25;
-            joint_marker.scale.y = 0.25;
-            joint_marker.scale.z = 0.25;
+            joint_marker.type = visualization_msgs::msg::Marker::POINTS;
+            joint_marker.scale.x = 0.2;
+            joint_marker.scale.y = 0.2;
+            joint_marker.scale.z = 0.2;
 
             // Set the color -- be sure to set alpha to something non-zero!
             joint_marker.color.r = 0.2f;
             joint_marker.color.g = 0.1f;
             joint_marker.color.b = 0.75f;
             joint_marker.color.a = 0.8;
-            
+
             hand_marker_array->markers.push_back(joint_marker);
           }
         }
+
+        sleep_for(nanoseconds(10000));
       }
 
       marker_id = 0;
