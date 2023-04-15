@@ -30,7 +30,7 @@ $ source ~/.bashrc
 $ sudo apt-get install python-rosdep python-rosinstall-generator python-vcstool python-rosinstall build-essential
 
 #  Starting the Leap Motion sensor
-First, you should intall the Leap Motion SDK according to this [tutorial](https://support.leapmotion.com/hc/en-us/articles/360004317918-Linux-Installation)
+First, you should intall the Leap Motion SDK according to this [tutorial](https://support.leapmotion.com/hc/en-us/articles/360004317918-Linux-Installation).
 
 After installion, connect your sensor to PC and start using below command.
 
