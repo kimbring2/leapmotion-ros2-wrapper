@@ -30,6 +30,17 @@ $ source ~/.bashrc
 $ sudo apt-get install python-rosdep python-rosinstall-generator python-vcstool python-rosinstall build-essential
 
 #  Starting the Leapmotion node
+First, you should intall the Leap Motion SDK according to this [tutorial](https://support.leapmotion.com/hc/en-us/articles/360004317918-Linux-Installation)
+
+After installion, connect your sensor to PC and start using below command.
+
+```
+$ sudo leapd
+```
+
+You should see the log text like a a below image.
+<img src="images/leapmotion.png" width="500">
+
 ```
 $ ros2 launch leapmotion_wrapper leapmotion.launch.py
 ```
