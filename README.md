@@ -29,7 +29,7 @@ $ source ~/.bashrc
 
 $ sudo apt-get install python-rosdep python-rosinstall-generator python-vcstool python-rosinstall build-essential
 
-#  Starting the Leapmotion node
+#  Starting the Leap Motion sensor
 First, you should intall the Leap Motion SDK according to this [tutorial](https://support.leapmotion.com/hc/en-us/articles/360004317918-Linux-Installation)
 
 After installion, connect your sensor to PC and start using below command.
@@ -41,6 +41,9 @@ $ sudo leapd
 You should see the log text like a a below image.
 
 <img src="images/leapmotion.png" width="500">
+
+# Starting the ROS2 wrapper of Leap Motion sensor
+If you succufully start the sensor, you can launch the ROS2 package to deal the hand tracking information from it.
 
 ```
 $ ros2 launch leapmotion_wrapper leapmotion.launch.py
@@ -55,3 +58,16 @@ $ ros2 topic list
 The '/leapmotion/plane_marker_array' can be seen in RViz.
 
 <img src="images/leapmotion_topic.png" width="500">
+
+# Display the sensor information using Rviz2
+
+After launching, you can see the hand tracking information using the Rviz2
+
+First, open the Rviz2
+```
+$ rviz2
+```
+
+Next, set the Fixed Frame of Displays section as base_link and add the MarkerArray topic display 
+
+<img src="images/rviz_screen.png" width="500">
