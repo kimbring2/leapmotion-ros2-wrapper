@@ -39,6 +39,7 @@ $ sudo leapd
 ```
 
 You should see the log text like a a below image.
+
 <img src="images/leapmotion.png" width="500">
 
 ```
