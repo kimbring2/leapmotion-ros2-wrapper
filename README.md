@@ -2,8 +2,6 @@
 This package lets you use the Leap Motion optical hand tracking module with ROS2. It provides access to the following data:
 - Fingers, bones position for the left, and right hand.
 
-This ROS2 package can be used with [leapmotion_display_rviz2](https://github.com/kimbring2/leapmotion-ros2-examples/tree/main/leapmotion_display_rviz2) packages to visualize the hand tracking at RViz2.
-
 <img src="images/leapmotion_rviz.gif" width="1000">
 
 # Known issues
