@@ -78,12 +78,12 @@ bool LeapMotion::startSensor()
   controller.addListener(listener);
 
   // Start grab thread
-  mGrabThread = std::thread(&LeapMotion::threadFunc_leapGrab, this);
+  //mGrabThread = std::thread(&LeapMotion::threadFunc_leapGrab, this);
   mSensThread = std::thread(&LeapMotion::threadFunc_pubSensorsData, this);
 
-  if (mGrabThread.joinable()) {
-    mGrabThread.join();
-  }
+  //if (mGrabThread.joinable()) {
+  //  mGrabThread.join();
+  //}
 
   if (mSensThread.joinable()) {
     mSensThread.join();
@@ -138,12 +138,14 @@ void LeapMotion::threadFunc_pubSensorsData()
 
         //RCLCPP_INFO(this->get_logger(), "listener.hands_vector['%d'].id: '%d'", i, listener.hands_vector[i].id);
         //RCLCPP_INFO(this->get_logger(), "finger_number: '%d'", finger_number);
+        
         for (int j = 0; j < finger_number; j++) {
           //RCLCPP_INFO(this->get_logger(), "listener.hands_vector['%d'].fingers['%d'].id: '%d'", 
           //                                i, j, listener.hands_vector[i].fingers[j].id);
           
           int bone_number = listener.hands_vector[i].fingers[j].bones.size();
           //RCLCPP_INFO(this->get_logger(), "bone_number: '%d'", bone_number);
+          
           
           for (int k = 0; k < 4; k++) {
             //RCLCPP_INFO(this->get_logger(), "k: '%d'", k);
@@ -161,18 +163,20 @@ void LeapMotion::threadFunc_pubSensorsData()
             point.z = listener.hands_vector[i].fingers[j].bones[k].prev_joint_z;
             //point.z = std::floor(dist(e2));
             //RCLCPP_INFO(this->get_logger(), "point.z: '%f'", point.z);
-
             joint_marker.points.push_back(point);
 
             point.x = listener.hands_vector[i].fingers[j].bones[k].next_joint_x;
             point.y = listener.hands_vector[i].fingers[j].bones[k].next_joint_y;
             point.z = listener.hands_vector[i].fingers[j].bones[k].next_joint_z;
             joint_marker.points.push_back(point);
+            
+            //std::ostringstream ns;
+            //ns << "plane_hit_points" << marker_id;
+            //std::string str = ns.str();
+            
+            std::string str = std::to_string(marker_id);
 
-            std::ostringstream ns;
-            ns << "plane_hit_points" << marker_id;
-            std::string str = ns.str();
-
+            
             joint_marker.ns = str;
             joint_marker.id = marker_id++;
             joint_marker.type = visualization_msgs::msg::Marker::POINTS;
@@ -186,77 +190,25 @@ void LeapMotion::threadFunc_pubSensorsData()
             joint_marker.color.b = 0.75f;
             joint_marker.color.a = 0.8;
 
-            hand_marker_array->markers.push_back(joint_marker);
+            try {
+              hand_marker_array->markers.push_back(joint_marker);
+            } catch (int myNum)  {
+              RCLCPP_INFO(this->get_logger(), "Error number:: '%d'", myNum);
+            }
+            
           }
+          
         }
-
+        
         sleep_for(nanoseconds(1000000));
       }
 
       marker_id = 0;
 
       mPubMarkerArray->publish(std::move(hand_marker_array));
-      RCLCPP_INFO(this->get_logger(), "\n");
+      //RCLCPP_INFO(this->get_logger(), "\n");
     }
 
-    sleep_for(nanoseconds(1000000));
-
-    /*
-    rclcpp::Time ts = get_clock()->now();
-
-    //RCLCPP_INFO(get_logger(), "threadFunc_leapGrab() loop");
-    visualization_msgs::msg::Marker pt_marker;
-
-    // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-    static int hit_pt_id = 0;
-    pt_marker.header.stamp = ts;
-
-    // Set the marker action.  Options are ADD and DELETE
-    pt_marker.action = visualization_msgs::msg::Marker::ADD;
-    pt_marker.lifetime = rclcpp::Duration(0, 0);
-
-    // Set the namespace and id for this marker.  This serves to create a unique ID
-    // Any marker sent with the same namespace and id will overwrite the old one
-    pt_marker.ns = "plane_hit_points";
-    pt_marker.id = hit_pt_id++;
-    std::string mMapFrameId = "base_link";
-    pt_marker.header.frame_id = mMapFrameId;
-
-    // Set the marker type.
-    pt_marker.type = visualization_msgs::msg::Marker::SPHERE;
-
-    // Set the pose of the marker.
-    // This is a full 6DOF pose relative to the frame/time specified in the header
-    float X = 0.1;
-    float Y = 0.1;
-    float Z = 0.1;
-
-    pt_marker.pose.position.x = X;
-    pt_marker.pose.position.y = Y;
-    pt_marker.pose.position.z = Z;
-    pt_marker.pose.orientation.x = 0.0;
-    pt_marker.pose.orientation.y = 0.0;
-    pt_marker.pose.orientation.z = 0.0;
-    pt_marker.pose.orientation.w = 1.0;
-
-    // Set the scale of the marker -- 1x1x1 here means 1m on a side
-    pt_marker.scale.x = 0.25;
-    pt_marker.scale.y = 0.25;
-    pt_marker.scale.z = 0.25;
-
-    // Set the color -- be sure to set alpha to something non-zero!
-    pt_marker.color.r = 0.2f;
-    pt_marker.color.g = 0.1f;
-    pt_marker.color.b = 0.75f;
-    pt_marker.color.a = 0.8;
-
-    sleep_for(nanoseconds(1000000));
-
-    // Publish the marker
-    RCLCPP_INFO(this->get_logger(), "publish marker");
-    mPubMarker->publish(std::move(pt_marker));
-
-    test_x += 0.001;
-    */
+    sleep_for(nanoseconds(100000000));
   }
 }
