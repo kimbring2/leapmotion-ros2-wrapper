@@ -154,8 +154,8 @@ def generate_launch_description():
                 description='The model of the camera. Using a wrong camera model can disable camera features. Valid models: `leapmotion`.'),
             DeclareLaunchArgument(
                 'node_name',
-                default_value='zed_node',
-                description='The name of the zed_wrapper node. All the topic will have the same prefix: `/<camera_name>/<node_name>/`'),
+                default_value='leapmotion_node',
+                description='The name of the leapmotion_wrapper node. All the topic will have the same prefix: `/<camera_name>/<node_name>/`'),
             DeclareLaunchArgument(
                 'config_path',
                 default_value=TextSubstitution(text=default_config_common),

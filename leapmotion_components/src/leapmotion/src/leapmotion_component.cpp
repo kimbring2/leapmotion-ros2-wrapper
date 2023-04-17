@@ -176,9 +176,9 @@ void LeapMotion::threadFunc_pubSensorsData()
             joint_marker.ns = str;
             joint_marker.id = marker_id++;
             joint_marker.type = visualization_msgs::msg::Marker::POINTS;
-            joint_marker.scale.x = 0.2;
-            joint_marker.scale.y = 0.2;
-            joint_marker.scale.z = 0.2;
+            joint_marker.scale.x = 0.02;
+            joint_marker.scale.y = 0.02;
+            joint_marker.scale.z = 0.02;
 
             // Set the color -- be sure to set alpha to something non-zero!
             joint_marker.color.r = 0.2f;
@@ -190,7 +190,7 @@ void LeapMotion::threadFunc_pubSensorsData()
           }
         }
 
-        sleep_for(nanoseconds(10000));
+        sleep_for(nanoseconds(1000000));
       }
 
       marker_id = 0;

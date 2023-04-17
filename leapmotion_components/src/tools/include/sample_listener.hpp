@@ -114,13 +114,13 @@ void SampleListener::onFrame(const Controller& controller) {
         Bone::Type boneType = static_cast<Bone::Type>(b);
         Bone bone = finger.bone(boneType);
 
-        float prev_joint_x = -bone.prevJoint().x / 100;
-        float prev_joint_y =  bone.prevJoint().z / 100;
-        float prev_joint_z =  bone.prevJoint().y / 100;
+        float prev_joint_x = -bone.prevJoint().x / 1000;
+        float prev_joint_y =  bone.prevJoint().z / 1000;
+        float prev_joint_z =  bone.prevJoint().y / 1000;
 
-        float next_joint_x = -bone.nextJoint().x / 100;
-        float next_joint_y =  bone.nextJoint().z / 100;
-        float next_joint_z =  bone.nextJoint().y / 100;
+        float next_joint_x = -bone.nextJoint().x / 1000;
+        float next_joint_y =  bone.nextJoint().z / 1000;
+        float next_joint_z =  bone.nextJoint().y / 1000;
 
         BoneClass bone_class;
         bone_class.type = boneType;
