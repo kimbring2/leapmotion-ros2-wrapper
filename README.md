@@ -15,17 +15,20 @@ This package lets you use the Leap Motion optical hand tracking module with ROS2
 # Build the package
 ```
 $ cd ~/ros2_ws/src/ #use your current ros2 workspace folder
-$ git clone  --recursive https://github.com/kimbring2/leapmotion-ros2-wrapper.git
+$ git clone --recursive https://github.com/kimbring2/leapmotion-ros2-wrapper.git
 $ cd ..
 $ rosdep install --from-paths src --ignore-src -r -y
-$ colcon build --symlink-install --cmake-args=-DCMAKE_BUILD_TYPE=Release
-$ echo source $(pwd)/install/local_setup.bash >> ~/.bashrc
-$ source ~/.bashrc
+$ source install/setup.bash
+$ colcon build --packages-select leapmotion_wrapper
 ```
 
-**Note**: If rosdep is missing you can install it with:
+# Found error and solution
+- AttributeError: module 'importlib._bootstrap' has no attribute 'SourceFileLoader'
+<img src="images/SourceFileLoaderError.png" width="700">
+```$ python3.8 -m ensurepip --upgr```
 
-$ sudo apt-get install python-rosdep python-rosinstall-generator python-vcstool python-rosinstall build-essential
+- If rosdep is missing you can install it with:
+```$ sudo apt-get install python-rosdep python-rosinstall-generator python-vcstool python-rosinstall build-essential```
 
 #  Starting the Leap Motion sensor
 First, you should intall the Leap Motion SDK according to this [tutorial](https://support.leapmotion.com/hc/en-us/articles/360004317918-Linux-Installation).
