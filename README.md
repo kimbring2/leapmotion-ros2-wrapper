@@ -24,9 +24,8 @@ $ colcon build --packages-select leapmotion_wrapper
 
 # Found error and solution
 - AttributeError: module 'importlib._bootstrap' has no attribute 'SourceFileLoader'
-<img src="images/SourceFileLoaderError.png" width="700">
-
-```$ python3.8 -m ensurepip --upgr```
+    <img src="images/SourceFileLoaderError.png" width="700">
+    ```$ python3.8 -m ensurepip --upgr```
 
 - If rosdep is missing you can install it with:
 ```$ sudo apt-get install python-rosdep python-rosinstall-generator python-vcstool python-rosinstall build-essential```
